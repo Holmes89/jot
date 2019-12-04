@@ -1,4 +1,4 @@
-(ns jot.editor
+(ns jot.entry
   (:require [clojure.java.shell :refer [sh]]
             [clojure.java.io :as io]
             [clojure.string :refer [join]]
@@ -22,8 +22,9 @@
 (def file-header
   (str "# " (.format (java.text.SimpleDateFormat. "EEEE, MMMM d, yyyy") (date)) "\n\n"))
 
-(def entry-name
-  (str git/jot-base "/entries/" current-entry-date-string ".md"))
+(defn entry-name
+  ([] (entry-name current-entry-date-string))
+  ([date-string] (str git/jot-base "/entries/" date-string ".md")))
 
 (defn current-entry-timestamp-string
   []
@@ -39,18 +40,29 @@
 
 (defn append-entry
   [contents]
-  (let [file entry-name]
+  (let [file (entry-name)]
     (if-not (file-exists? file)
       (spit file file-header))
     (spit file (join "\n" [(entry-header) "" contents ""]) :append true)))
 
-(defn create-entry
+(defn create
   []
   (let [name (temp-file-name)]
     (git/pull)
     (open-editor name)
     (append-entry (slurp name))
     (io/delete-file name)
-    (git/add entry-name)
+    (git/add (entry-name))
     (git/commit (str "entry created " (current-entry-timestamp-string)))
-    (git/push)))
+    (git/push)
+    true)) ;; TODO error handling?
+
+
+(defn show
+  [date]
+  (let [file-name (entry-name date)]
+    (println file-name)
+    (if (file-exists? file-name)
+      (println (slurp file-name))
+      (println "entry does not exist")))
+  true)
