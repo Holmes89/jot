@@ -4,18 +4,22 @@
 (def jot-base
   (str (System/getProperty "user.home") "/.jot"))
 
+(defn success?
+  [result-map]
+  (= 0 (:exit result-map)))
+
 (defn pull
   []
-  (sh "git" "-C" jot-base "pull" "origin" "master"))
+  (success? (sh "git" "-C" jot-base "pull" "origin" "master")))
 
 (defn push
   []
-  (sh "git" "-C" jot-base "push" "origin" "master"))
+  (success? (sh "git" "-C" jot-base "push" "origin" "master")))
 
 (defn commit
   [msg]
-  (sh "git" "-C" jot-base "commit" "-m" msg))
+  (success? (sh "git" "-C" jot-base "commit" "-m" msg)))
 
 (defn add
   [filename]
-  (sh "git" "-C" jot-base "add" filename))
+  (success? (sh "git" "-C" jot-base "add" filename)))

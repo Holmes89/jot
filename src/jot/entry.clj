@@ -48,9 +48,16 @@
 (defn create
   []
   (let [name (temp-file-name)]
-    (git/pull)
-    (open-editor name)
-    (append-entry (slurp name))
+    (cond
+      (not (git/pull))
+      {:exit 1 :message "unable to pull from repo"}
+
+      (not (open-editor name))
+      {:exit 1 :message "failed to open editor"}
+
+      (not (append-entry (slurp name)))
+      {:exit 1 :message "failed to write to entry"}
+      )    
     (io/delete-file name)
     (git/add (entry-name))
     (git/commit (str "entry created " (current-entry-timestamp-string)))
@@ -61,7 +68,6 @@
 (defn show
   [date]
   (let [file-name (entry-name date)]
-    (println file-name)
     (if (file-exists? file-name)
       (println (slurp file-name))
       (println "entry does not exist")))
