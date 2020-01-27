@@ -25,8 +25,8 @@ pub fn intialize() {
 fn clone_repo(url: &str) -> String {
     let home = std::env::home_dir().unwrap();
     let jot_home = format!("{}{}", home.to_str().unwrap(), "/.jot");
-    let pub_path = format!("{}{}", home.to_str().unwrap(), "/.ssh/id_rsa.pub");
-    let private_path = format!("{}{}", home.to_str().unwrap(), "/.ssh/id_rsa");
+    let _pub_path = format!("{}{}", home.to_str().unwrap(), "/.ssh/id_rsa.pub");
+    let _private_path = format!("{}{}", home.to_str().unwrap(), "/.ssh/id_rsa");
     let p = Path::new(&jot_home);
     if p.exists() {
         panic!("directory already exists")
@@ -37,14 +37,8 @@ fn clone_repo(url: &str) -> String {
     let mut auth_callback = git2::RemoteCallbacks::new();
 
     auth_callback.credentials(|_, _, _| {
-        let credentials = git2::Cred::ssh_key(
-            "git",
-            Some(Path::new(&pub_path)),
-            Path::new(&private_path),
-            None,
-        )
-        .expect("Could not create credentials object");
-
+        let credentials =
+            git2::Cred::ssh_key_from_agent("git").expect("Could not create credentials object");
         Ok(credentials)
     });
 
