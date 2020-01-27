@@ -1,6 +1,8 @@
 extern crate clap;
 use clap::App;
 
+mod init;
+
 fn main() {
     let matches = App::new("Jot")
         .version("0.2")
@@ -18,7 +20,7 @@ fn main() {
         Some("create") => println!("created"),
         Some("edit") => println!("edited"),
         Some("read") => println!("read"),
-        Some("init") => println!("init'd"),
+        Some("init") => crate::init::intialize(),
         None => println!("HALP!"),
         _ => unreachable!(),
     }
