@@ -1,3 +1,4 @@
+extern crate dirs;
 extern crate rustyline;
 
 use git2::Repository;
@@ -23,10 +24,11 @@ pub fn intialize() {
 }
 
 fn clone_repo(url: &str) -> String {
-    let home = std::env::home_dir().unwrap();
-    let jot_home = format!("{}{}", home.to_str().unwrap(), "/.jot");
-    let _pub_path = format!("{}{}", home.to_str().unwrap(), "/.ssh/id_rsa.pub");
-    let _private_path = format!("{}{}", home.to_str().unwrap(), "/.ssh/id_rsa");
+    let home_dir = dirs::home_dir().expect("cannot find home directory");
+    let home = home_dir.to_str().expect("could not extract directory name");
+    let jot_home = format!("{}{}", home, "/.jot");
+    let _pub_path = format!("{}{}", home, "/.ssh/id_rsa.pub");
+    let _private_path = format!("{}{}", home, "/.ssh/id_rsa");
     let p = Path::new(&jot_home);
     if p.exists() {
         panic!("directory already exists")
@@ -44,6 +46,6 @@ fn clone_repo(url: &str) -> String {
 
     fetch_options.remote_callbacks(auth_callback);
     repo_builder.fetch_options(fetch_options);
-    let _repo = repo_builder.clone(url, p).unwrap();
+    let _repo = repo_builder.clone(url, p).expect("could not clone repo");
     String::from("initialized")
 }
