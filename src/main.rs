@@ -1,6 +1,7 @@
 extern crate clap;
 use clap::App;
 
+mod create;
 mod init;
 
 fn main() {
@@ -17,7 +18,7 @@ fn main() {
         .get_matches();
 
     match matches.subcommand_name() {
-        Some("create") => println!("created"),
+        Some("create") => crate::create::new_entry(),
         Some("edit") => println!("edited"),
         Some("read") => println!("read"),
         Some("init") => crate::init::intialize(),

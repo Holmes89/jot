@@ -1,7 +1,6 @@
 extern crate dirs;
 extern crate rustyline;
 
-use git2::Repository;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 use std::path::Path;
