@@ -1,5 +1,4 @@
-The MIT License (MIT)
-
+/*
 Copyright © 2020 Joel Holmes <holmes89@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,3 +18,34 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+*/
+package cmd
+
+import (
+	"github.com/spf13/cobra"
+)
+
+// initCmd represents the init command
+var initCmd = &cobra.Command{
+	Use:   "init",
+	Short: "Initialize application by downloading remote repository",
+	Long: `Currently support remote repositories instead of just local ones. This command will
+	take a repository endpoint and clone it. This endpoint will then be stored in config for future syncing.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return app.Initialize("git@github.com:holmes89/dev-journal.git")
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(initCmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// initCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// initCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}

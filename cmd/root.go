@@ -1,0 +1,133 @@
+/*
+Copyright © 2020 Joel Holmes <holmes89@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+package cmd
+
+import (
+	"fmt"
+	"io"
+	"os"
+
+	"github.com/holmes89/jot/internal"
+	"github.com/spf13/cobra"
+
+	homedir "github.com/mitchellh/go-homedir"
+	"github.com/spf13/viper"
+)
+
+var (
+	cfgFile    string
+	app        *internal.App
+	out        io.Writer
+	uploadPath string
+	name       string
+	debug      bool
+)
+
+// rootCmd represents the base command when called without any subcommands
+var rootCmd = &cobra.Command{
+	Use:   "jot",
+	Short: "A brief description of your application",
+	Long: `A longer description that spans multiple lines and likely contains
+examples and usage of using your application. For example:
+
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.`,
+	// Uncomment the following line if your bare application
+	// has an action associated with it:
+	//	Run: func(cmd *cobra.Command, args []string) { },
+}
+
+// Execute adds all child commands to the root command and sets flags appropriately.
+// This is called by main.main(). It only needs to happen once to the rootCmd.
+func Execute() {
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
+
+func init() {
+	cobra.OnInitialize(initConfig)
+
+	// Here you will define your flags and configuration settings.
+	// Cobra supports persistent flags, which, if defined here,
+	// will be global for your application.
+
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.jot.yaml)")
+
+	// Cobra also supports local flags, which will only run
+	// when this action is called directly.
+	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func initWriter() {
+	out = os.Stdout
+}
+
+// initConfig reads in config file and ENV variables if set.
+func initConfig() {
+	// Find home directory.
+	home, err := homedir.Dir()
+	if err != nil {
+		fmt.Fprintln(out, err)
+		os.Exit(1)
+	}
+
+	if cfgFile != "" {
+		// Use config file from the flag.
+		viper.SetConfigFile(cfgFile)
+	} else {
+
+		configFile := fmt.Sprintf("%s/.jotconfig.yml", home)
+		if _, err := os.Stat(configFile); os.IsNotExist(err) {
+			file, err := os.Create(configFile)
+			if err != nil {
+				fmt.Fprintln(out, "unable to create config file")
+				os.Exit(1)
+			}
+			fmt.Println(file.Name())
+			file.Close()
+
+		}
+
+		// Search config in home directory with name ".jotconfig" (without extension).
+		viper.AddConfigPath(home)
+		viper.SetConfigName(".jotconfig")
+	}
+
+	// If a config file is found, read it in.
+	if err := viper.ReadInConfig(); err == nil {
+		if debug {
+			fmt.Fprintln(out, "Using config file:", viper.ConfigFileUsed())
+		}
+
+	}
+
+	app = &internal.App{}
+	if err := viper.Unmarshal(app); err != nil {
+		fmt.Fprintln(out, "unable to load config")
+		os.Exit(1)
+	}
+	app.HomeDir = home
+	app.Config = viper.GetViper()
+}
