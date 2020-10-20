@@ -5,7 +5,7 @@ import (
 )
 
 func (app *App) credentialsCallback(url string, username string, _ git.CredType) (*git.Cred, error) {
-	return git.NewCredSshKey("git", app.HomeDir+".ssh/id_rsa.pub", app.HomeDir+".ssh/id_rsa", "")
+	return git.NewCredSshKey("git", app.HomeDir+"/.ssh/id_rsa.pub", app.HomeDir+"/.ssh/id_rsa", "")
 }
 
 func certificateCheckCallback(cert *git.Certificate, valid bool, hostname string) git.ErrorCode {
