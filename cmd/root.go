@@ -27,9 +27,9 @@ import (
 	"os"
 
 	"github.com/holmes89/jot/internal"
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )
 
@@ -129,5 +129,6 @@ func initConfig() {
 		os.Exit(1)
 	}
 	app.HomeDir = home
+	app.GitDir = app.HomeDir + "/.jot"
 	app.Config = viper.GetViper()
 }

@@ -8,6 +8,7 @@ import (
 
 type App struct {
 	HomeDir       string
+	GitDir        string
 	Repo          string
 	DefaultEditor string
 	Config        *viper.Viper
