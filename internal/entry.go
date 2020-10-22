@@ -1,6 +1,11 @@
 package internal
 
 import (
+	"fmt"
+	"io/ioutil"
+	"os"
+	"os/exec"
+
 	git "github.com/libgit2/git2go/v30"
 )
 
@@ -22,4 +27,26 @@ func (app *App) Initialize(repo string) error {
 	}
 	_, err := git.Clone(repo, app.HomeDir+"/.jot", cloneOptions)
 	return err
+}
+
+func (app *App) Create() error {
+	f, err := ioutil.TempFile("/tmp", "entry*.md")
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	defer os.Remove(f.Name())
+
+	cmd := exec.Command("emacs", f.Name())
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	bytes, err := ioutil.ReadFile(f.Name())
+	fmt.Println(string(bytes))
+	return nil
 }
