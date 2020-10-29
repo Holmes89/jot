@@ -42,9 +42,11 @@ func (app *App) Create() error {
 	conbuf := bytes.NewBuffer(buf)
 
 	now := time.Now()
-	fname := fmt.Sprintf("%s/%s.md", app.GitDir, now.Format("2006-01-02"))
 
-	if _, err := os.Stat(fname); os.IsNotExist(err) {
+	fname := fmt.Sprintf("%s.md", now.Format("2006-01-02"))
+	fpath := fmt.Sprintf("%s/%s", app.GitDir, fname)
+
+	if _, err := os.Stat(fpath); os.IsNotExist(err) {
 		dateHeader := now.Format("Monday, January _2, 2006")
 		dateHeader = fmt.Sprintf("# %s\n\n", dateHeader)
 		conbuf.WriteString(dateHeader)
@@ -60,7 +62,7 @@ func (app *App) Create() error {
 	}
 	conbuf.Write(content)
 
-	f, err := os.OpenFile(fname, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(fpath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
@@ -68,6 +70,10 @@ func (app *App) Create() error {
 
 	conbuf.Write(endOfContent)
 	if _, err := f.Write(conbuf.Bytes()); err != nil {
+		return err
+	}
+
+	if err := app.commit(fname, fmt.Sprintf("created file %s", fname)); err != nil {
 		return err
 	}
 
@@ -80,6 +86,8 @@ func (app *App) Update(date string) error {
 		date = date + ".md"
 	}
 
+	fname := date
+
 	tf, err := ioutil.TempFile("/tmp", "entry*.md")
 	if err != nil {
 		return err
@@ -87,8 +95,8 @@ func (app *App) Update(date string) error {
 	defer tf.Close()
 	defer os.Remove(tf.Name())
 
-	fname := fmt.Sprintf("%s/%s", app.GitDir, date)
-	exFile, err := os.Open(fname)
+	fpath := fmt.Sprintf("%s/%s", app.GitDir, date)
+	exFile, err := os.Open(fpath)
 	if err != nil {
 		return err
 	}
@@ -106,7 +114,7 @@ func (app *App) Update(date string) error {
 		return err
 	}
 
-	f, err := os.OpenFile(fname, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755) //OS truncate
+	f, err := os.OpenFile(fpath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755) //OS truncate
 	if err != nil {
 		return err
 	}
@@ -114,6 +122,10 @@ func (app *App) Update(date string) error {
 	defer f.Close()
 
 	if _, err := f.Write(content); err != nil {
+		return err
+	}
+
+	if err := app.commit(fname, fmt.Sprintf("updated file %s", fpath)); err != nil {
 		return err
 	}
 
@@ -141,4 +153,70 @@ func (app *App) getInputWithExistingFile(f *os.File) ([]byte, error) {
 	}
 
 	return ioutil.ReadFile(f.Name())
+}
+
+func (app *App) commit(path, msg string) error {
+	var signature = &git.Signature{ //TODO config
+		Name:  "Joel Holmes",
+		Email: "holmes89@gmail.com",
+		When:  time.Now(),
+	}
+
+	repo, err := git.OpenRepository(app.GitDir)
+	if err != nil {
+		return err
+	}
+
+	head, err := repo.Head()
+	if err != nil {
+		return err
+	}
+
+	idx, err := repo.Index()
+	if err != nil {
+		return err
+	}
+
+	if err := idx.AddByPath(path); err != nil {
+		return err
+	}
+
+	treeID, err := idx.WriteTree()
+	if err != nil {
+		return err
+	}
+
+	if err := idx.Write(); err != nil {
+		return err
+	}
+
+	tree, err := repo.LookupTree(treeID)
+	if err != nil {
+		return err
+	}
+
+	commitTarget, err := repo.LookupCommit(head.Target())
+	if err != nil {
+		return err
+	}
+
+	if _, err := repo.CreateCommit("refs/heads/master", signature, signature, msg, tree, commitTarget); err != nil {
+		return err
+	}
+
+	remote, err := repo.Remotes.Lookup("origin")
+	if err != nil {
+		return err
+	}
+
+	if err := remote.Push([]string{"refs/heads/master"}, &git.PushOptions{
+		RemoteCallbacks: git.RemoteCallbacks{
+			CredentialsCallback:      app.credentialsCallback,
+			CertificateCheckCallback: certificateCheckCallback,
+		},
+	}); err != nil { // working off of master for now, maybe move to branches in the future?
+		return err
+	}
+
+	return nil
 }
