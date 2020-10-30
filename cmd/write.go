@@ -30,8 +30,13 @@ var writeCmd = &cobra.Command{
 	Use:   "write",
 	Short: "Write new entry to daily file or notebook",
 	Long:  `Create new entry in daily file for general or specialized notes`,
+	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return app.Create()
+		var dir string
+		if len(args) > 0 {
+			dir = args[0]
+		}
+		return app.Create(dir)
 	},
 }
 

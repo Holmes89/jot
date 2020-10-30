@@ -37,13 +37,18 @@ func (app *App) Initialize(repo string) error {
 	return err
 }
 
-func (app *App) Create() error {
+func (app *App) Create(dir string) error {
 	buf := make([]byte, 0)
 	conbuf := bytes.NewBuffer(buf)
 
 	now := time.Now()
 
 	fname := fmt.Sprintf("%s.md", now.Format("2006-01-02"))
+	if dir != "" {
+		dirPath := fmt.Sprintf("%s/%s", app.GitDir, dir)
+		_ = os.Mkdir(dirPath, 0700)
+		fname = fmt.Sprintf("%s/%s", dir, fname)
+	}
 	fpath := fmt.Sprintf("%s/%s", app.GitDir, fname)
 
 	if _, err := os.Stat(fpath); os.IsNotExist(err) {
