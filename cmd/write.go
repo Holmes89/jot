@@ -22,6 +22,8 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"strings"
+
 	"github.com/spf13/cobra"
 )
 
@@ -29,12 +31,12 @@ import (
 var writeCmd = &cobra.Command{
 	Use:   "write",
 	Short: "Write new entry to daily file or notebook",
-	Long:  `Create new entry in daily file for general or specialized notes`,
+	Long:  `Create new entry in daily file for general or specialized notes. Give a subject to store in subdirectory`,
 	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var dir string
 		if len(args) > 0 {
-			dir = args[0]
+			dir = strings.TrimSpace(args[0])
 		}
 		return app.Create(dir)
 	},

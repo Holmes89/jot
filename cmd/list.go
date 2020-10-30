@@ -22,40 +22,29 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"strings"
-	"time"
-
 	"github.com/spf13/cobra"
 )
 
-// editCmd represents the edit command
-var editCmd = &cobra.Command{
-	Use:   "edit",
-	Short: "Edit a given day's content",
-	Args:  cobra.MaximumNArgs(1),
-	Long:  `Update an entry for a given day or path. No arg to edit current day. Edit date YYYY-MM-DD. Edit subject date subject/YYYY-MM-DD`,
+// listCmd represents the list command
+var listCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List all entries",
+	Long:  `List all entries and their directories`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		var date string
-		if len(args) > 0 {
-			date = strings.TrimSpace(args[0])
-		}
-		if date == "" {
-			date = time.Now().Format("2006-01-02")
-		}
-		return app.Update(date)
+		return app.List()
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(editCmd)
+	rootCmd.AddCommand(listCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// editCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// listCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// editCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// listCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -135,6 +136,26 @@ func (app *App) Update(date string) error {
 	}
 
 	return nil
+}
+
+func (app *App) List() error {
+	return filepath.Walk(app.GitDir, func(path string, info os.FileInfo, err error) error {
+		if !info.IsDir() {
+			dir, fname := filepath.Split(path)
+			if strings.Contains(".git", dir) {
+				return nil
+			}
+			dir = strings.Replace(dir, app.GitDir+"/", "", 1)
+			if fname != "README.md" && filepath.Ext(fname) == ".md" {
+				name := strings.ReplaceAll(fname, ".md", "")
+				if dir != "" {
+					name = fmt.Sprintf("%s%s", dir, name)
+				}
+				fmt.Println(name)
+			}
+		}
+		return nil
+	})
 }
 
 func (app *App) getInput() ([]byte, error) {
