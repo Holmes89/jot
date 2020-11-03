@@ -108,6 +108,8 @@ github.com/libgit2/git2go v0.28.4 h1:xfXnDnt31R2p7Yea7023C//NglM/1v+w87peBBwLZ3U
 github.com/libgit2/git2go v0.28.4/go.mod h1:4bKN42efkbNYMZlvDfxGDxzl066GhpvIircZDsm8Y+Y=
 github.com/libgit2/git2go/v30 v30.0.13 h1:CiDsp950c1LKLNtunt+S3N6qQIGErX09Ang+JLT86oA=
 github.com/libgit2/git2go/v30 v30.0.13/go.mod h1:bEqWPWaJjDpnkerA2FlyUdsuhc5/3UPBjYJ6SV0X3gY=
+github.com/libgit2/git2go/v30 v30.1.0 h1:zQUMYDRrZ2Mp9CGgGwvg9MGQBnrzep1nvmaRNrpVjxU=
+github.com/libgit2/git2go/v30 v30.1.0/go.mod h1:bEqWPWaJjDpnkerA2FlyUdsuhc5/3UPBjYJ6SV0X3gY=
 github.com/magiconair/properties v1.8.1 h1:ZC2Vc7/ZFkGmsVC9KvOjumD+G5lXy2RtTKyzRKO2BQ4=
 github.com/magiconair/properties v1.8.1/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=
 github.com/mattn/go-colorable v0.0.9/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaOChaDxuIBZU=
