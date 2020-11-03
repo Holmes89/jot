@@ -16,9 +16,9 @@ Following packages are required: `sudo apt-get install libgpm2 libgpm-dev libgit
 
 ```
 sudo apt-get -y install cmake libssl-dev
-wget https://github.com/libgit2/libgit2/releases/download/v1.0.0/libgit2-1.0.0.tar.gz
-tar -xzf libgit2-1.0.0.tar.gz
-cd libgit2-1.0.0 && mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr && sudo cmake --build . --target install
+wget https://github.com/libgit2/libgit2/releases/download/v1.1.0/libgit2-1.1.0.tar.gz
+tar -xzf libgit2-1.1.0.tar.gz
+cd libgit2-1.1.0 && mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr && sudo cmake --build . --target install
 rm -rf libgit2*
 ```
 
